@@ -202,12 +202,69 @@ Hasta ahora, ambos ejemplos que hemos puesto han tenido la misma longitud tanto 
 | *t* | 116 | `01110100` |
 | *o* | 111 | `01101111` |
 
+```Python
+print(len("Hola Don PePIto"))  # 15 caracteres
+```
 
+| Carácter ASCII | Código ASCII | Binario |
+| :---: | :---: | :---: |
+| *k* | 107 | `01101011` |
+| _i_ | 106 | `01101010` |
+| *k* | 107 | `01101011` |
+| *2* | 50 | `00110010` |
+| *@* | 64 | `01000000` |
+| *1* | 49 | `00110001` |
 
+```Python
+print(len("kik2@1"))  # 6 caracteres
+```
 
+>Obviamente, el mensaje a cifrar es mucho más largo que la clave de cifrado. Esto es un problema de seguridad, pero no nos impide cifrar el mensaje.
 
+Para cifrar el mensaje con una clave más corta, tan solo debemos de ir repitiendo los caracteres correspondientes de la clave hasta que cifremos todos los caracteres del mensaje:
 
+```text
+"Hola Don PePIto": 01001000 01101111 01101100 01100001 00100000 01000100 01101111 01101110 00100000 01010000 01100101 01010000 01001001 01110100 01101111
+"kik2@1":          01101011 01101001 01101011 00110010 01000000 00110001 01101011 01101001 01101011 00110010 01000000 00110001 01101011 01101001 01101011
+                       k        i        k        2        @        1   |    k        i        k        2        @        1   |    k        i        k
+                   --------------------------------------------------------------------------------------------------------------------------------------
+                   00100011 00000110 00000111 01010011 01100000 01110101 00000100 00000111 01001011 01100010 00100101 01100001 00100010 00011101 00000100
 
+Resultado -> '#\x06\x07S`u\x04\x07Kb%a"\x1d\x04'
+```
 
+>En el ejemplo anterior podemos ver un mensaje cifrado con una clave mucho menor que él.
 
+##### Por qué es una mala práctica?
 
+Usar una clave más corta que el mensaje obliga a repetir la clave cíclicamente para cubrir toda la longitud del texto. En criptografía, esta repetición destruye la seguridad matemática del cifrado, convirtiendo un mensaje supuestamente ilegible en un rompecabezas estadístico trivial de resolver.
+
+Aunque es útil para ofuscar payloads rápidos contra antivirus básicos, es criptográficamente débil por tres motivos fundamentales:
+
+##### 1. Fuga de patrones y Análisis de Frecuencias
+El lenguaje humano y los lenguajes de programación (HTML, Bash, Python) no son aleatorios; tienen estructuras repetitivas (espacios, vocales comunes, etiquetas como `<div>` o comandos como `echo`).
+
+Si nuestra clave se repite cada 5 bytes y la palabra "admin" aparece varias veces en el texto original, es muy probable que esas letras se alineen con los mismos caracteres de la clave en más de una ocasión. Esto genera secuencias idénticas en el texto cifrado. Un atacante puede usar técnicas como el *Método Kasiski* para medir la distancia entre estos bloques repetidos y deducir exactamente la longitud de la clave. Una vez conoce la longitud, puede aplicar análisis de frecuencias estándar para romper el cifrado en segundos.
+
+##### 2. Vulnerabilidad extrema al "Known-Plaintext Attack" (KPA)
+En la propiedad matemática del XOR, si `Texto ^ Clave = Cifrado`, entonces `Cifrado ^ Texto = Clave`.
+
+Si un atacante intercepta nuestro mensaje y puede adivinar tan solo un pequeño fragmento de lo que contiene (por ejemplo, sabe que el mensaje empieza por `HTTP/1.1` o que contiene `#!/bin/bash`), puede aplicar XOR entre ese fragmento adivinado y nuestro texto cifrado.
+
+Si la clave era igual de larga que el mensaje, el atacante solo descubre esos 10 bytes aislados de la clave y el resto sigue seguro.
+
+Si la clave era corta y se repetía, al descubrir 10 bytes acaba de revelar la clave entera. Solo tiene que coger ese fragmento, volver a aplicarlo en bucle sobre todo el mensaje, y descifrar el 100% de la comunicación.
+
+##### 3. La técnica del "Crib Dragging"
+Incluso si el atacante no sabe exactamente en qué parte del texto está la palabra adivinada (llamada *crib*), puede usar un script para arrastrar esa palabra byte a byte por todo el texto cifrado. Como la clave es corta y se repite, en el momento en que el crib se alinea correctamente, el texto resultante mostrará letras de la clave repetida de forma evidente, delatando su posición.
+
+##### La Regla de Oro: El Cifrado de Libreta de un Solo Uso (One-Time Pad)
+Para que un cifrado (como el XOR) sea matemáticamente irrompible, debe cumplir tres leyes estrictas:
+
+- La clave debe ser generada de forma verdaderamente aleatoria.
+
+- La clave nunca debe reutilizarse.
+
+- La clave debe ser al menos tan larga como el mensaje.
+
+Si se cumplen estas tres reglas, el cifrado adquiere "*Secreto Perfecto*". El atacante podría probar todas las claves posibles por fuerza bruta y obtendría todos los mensajes posibles del universo que encajen en esa longitud, sin ninguna pista matemática que le indique cuál es el mensaje real. Reducir la clave y repetirla rompe esta premisa al instante.
