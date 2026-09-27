@@ -8,4 +8,4 @@ El propósito de este espacio es construir una base matemática y técnica sóli
 
 ## 🗂️ Organización del Repositorio
 
-- 
+- ***[XOR](./XOR)***
