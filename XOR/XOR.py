@@ -40,7 +40,7 @@ Clave: {repr(clave)}
 - Resultado hexadecimal: {datos_cifrados.hex()}
 - Resultado decimal: {[ord(char) for char in datos_cifrados.decode()]}
 - Resultado en Base64: {base64.b64encode(datos_cifrados).decode()}
-- Resultado ASCII: {repr(datos_cifrados.decode())}
+- Resultado ASCII: {repr(datos_cifrados)}
 """)
 
 def cifrar_descifrar_xor(datos: bytes, clave: bytes) -> bytes:
