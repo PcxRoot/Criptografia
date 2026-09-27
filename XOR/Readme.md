@@ -54,7 +54,7 @@ Imaginemos que tenemos el mensaje `HOLA` (en mayúsculas), y queremos cifrarlo u
 | *L* | 76 | `01001100` |
 | *A* | 65 | `01000001` |
 
-##### [2.] Transformamos cada carácter del mensaje en su forma binaria (byte):
+##### [2.] Transformamos cada carácter de la clave en su forma binaria (byte):
 
 | Carácter ASCII | Código ASCII | Binario |
 | :---: | :---: | :---: |
@@ -120,7 +120,87 @@ Con todo esto, podemos representar el mensaje cifrado  de varias formas:
    CmV2MA==
    ```
 
+#### DESCIFRADO: Ejemplo práctico
 
+Partiendo del mismo ejemplo anterior, vamos a descifrarlo usando exactamente el mismo método que al cifrar el mensaje:
+
+##### [1.] Transformamos cada carácter del mensaje cifrado en su forma binaria (byte):
+
+| Carácter ASCII | Código ASCII | Binario |
+| :---: | :---: | :---: |
+| *\n* | 10 | `00001010` |
+| *e* | 101 | `01100101` |
+| *v* | 118 | `01110110` |
+| *0* | 48 | `00110000` |
+
+##### [2.] Transformamos cada carácter de la clave en su forma binaria (byte):
+
+| Carácter ASCII | Código ASCII | Binario |
+| :---: | :---: | :---: |
+| *B* | 66 | `01000010` |
+| _*_ | 42 | `00101010` |
+| *:* | 58 | `00111010` |
+| *q* | 113 | `01110001` |
+
+###### [3.] Cifrado XOR
+
+Una vez que tenemos los caracteres en su forma binaria, debemos comparar las posiciones correspondientes del mensaje y la clave:
+
+```text
+'\n' -> 00001010
+'B'  -> 01000010
+        --------
+        01001000 -> 72 -> (H)
+
+=======================================
+
+'e' -> 01100101
+'*' -> 00101010
+       --------
+       01001111 -> 79 -> (o)
+
+=======================================          ---------> Mensaje descifrado -> "HOLA"
+
+'v' -> 01110110
+':' -> 00111010
+       --------
+       01001100 -> 76 -> (L)
+
+=======================================
+
+'0' -> 00110000
+'q' -> 01110001
+       --------
+       01000001 -> 65 -> (A)
+```
+
+>Vemos que siguiendo exactamente el mismo proceso de cifrado, podemos descifrar el mensaje siempre y cuando tengamos la clave de cifrado.
+
+#### Cifrado y Descifrado con mensajes y claves diferentes
+
+Hasta ahora, ambos ejemplos que hemos puesto han tenido la misma longitud tanto el mensaje como la clave de cifrado. Y aunque es lo recomendable, no tiene porque ser así. Podemos cifrar y descifrar mensajes que son más largos (o cortos, lo cual no tiene demasiado sentido) que la clave de cifrado:
+
+##### Cifrado: `len(Mensaje)` > `len(clave)`
+
+>En esta ocasión, usaremos la clave `Hola Don PePIto` con la clave `kik2@1`
+
+| Carácter ASCII | Código ASCII | Binario |
+| :---: | :---: | :---: |
+| *H* | 72 | `01001000` |
+| *o* | 111 | `01101111` |
+| *l* | 108 | `01101100` |
+| *a* | 97 | `01100001` |
+| *' '* | 32 | `00100000` |
+| *D* | 68 | `01000100` |
+| *o* | 111 | `01101111` |
+| *n* | 110 | `01101110` |
+| *' '* | 32 | `00100000` |
+| *P* | 80 | `01010000` |
+| *e* | 101 | `01100101` |
+| *P* | 80 | `01010000` |
+| *I* | 73 | `01001001` |
+| *t* | 116 | `01110100` |
+| *o* | 111 | `01101111` |
 
 
 
