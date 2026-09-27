@@ -45,14 +45,15 @@ Clave: {repr(clave)}
 
 def cifrar_descifrar_xor(datos: bytes, clave: bytes) -> bytes:
         """Cifrado y Descifrado XOR"""
-        # Comenzamos el cifrado
+        # Creamos el aray de bytes que alamcenará el mensaje cifrado
         resultado = bytearray()
 
+        # Por cada posición del mensaje 
         for i in range(len(datos)):
             byte_dato = datos[i]
-            byte_clave = clave[i % len(clave)]
+            byte_clave = clave[i % len(clave)]  # El % permite que la clave sea más corta que el mensaje sin que se rompa el script
 
-            resultado.append(byte_dato ^ byte_clave)
+            resultado.append(byte_dato ^ byte_clave)  # Añadimos a la lista el resultado del proceso XOR
 
         return bytes(resultado)
 
@@ -63,10 +64,13 @@ def cifrado():
     texto_plano = input("Introduce el texto a cifrar: ").strip()
     clave = input(f"Introduce la clave de cifrado (es recomendable que sea de {len(texto_plano)} caracteres de longitud): ")
 
+    # Obtenemos el mensaje cifrado
     bytes_cifrados = cifrar_descifrar_xor(datos=texto_plano.encode(), clave=clave.encode())
 
+    # Mostramos los datos de forma limpia y explicativa
     mostrar_datos(texto_plano, clave, bytes_cifrados)
 
+    # Preguntamos si quiere almacenar el mensaje en un archivo
     archivo = input("Deséa crear un archivo?[y/N]: ")
 
     if archivo.lower() in ["y", "yes"]:
@@ -81,6 +85,7 @@ def cifrado():
 def descifrado():
     """Flujo de descifrado"""
 
+    # Mostramos las opciones de descifrado
     menu = input(f"""
 Base64  ->  (1)
 Archivo ->  (2)
@@ -90,26 +95,33 @@ Archivo ->  (2)
     print()
 
     if menu == "1":
+        # Si desciframos desde un código en Base64
         texto_cifrado = base64.b64decode(input("Introduce el código en Base64: "))  # bytes
         clave = input("Introduce la clave de descifrado: ")  # str
 
+        # Obtenemos el mensaje descifrado
         resultado = cifrar_descifrar_xor(texto_cifrado, clave.encode())
 
+        # Mostramos los datos de forma limpia y explicativa
         mostrar_datos(texto_cifrado.decode(), clave, resultado, descifrado=True)
 
     elif menu == "2":
+        # Si leemos el mensaje cifrado desde un archivo
         import os
-        ruta = input("Introduce la ruta al archivo a descifrar: ")
+        ruta = input("Introduce la ruta al archivo a descifrar: ")  # Comprobamos que el archivo exista
         if not os.path.exists(ruta):
             print(f"[!] ERROR: No existe el archivo {os.path.basename(ruta)} en la ruta {ruta}")
             sys.exit(-1)
 
         with open(ruta, 'rb') as f:
-            datos = f.read()
+            datos = f.read()  # Leemos el contenido del archivo
 
         clave = input("Introduce la clave de descifrado: ")
+        
+        # Desciframos el mensaje
         resultado = cifrar_descifrar_xor(datos, clave.encode())
 
+        # Mostramos los datos de froma limpia y explicativa
         mostrar_datos(datos.decode(), clave, resultado, descifrado=True)
 
 
@@ -118,7 +130,7 @@ Archivo ->  (2)
 def main():
     """FLujo principal del programa"""
 
-    limpiar()
+    limpiar()  # Limpiamos la terminal
     cifrar_descifrar = input(f"""MENÚ DE OPCIONES
 Cifrar     ->  (1)
 Descifrar  ->  (2)
